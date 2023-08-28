@@ -21,6 +21,21 @@ export class TermoScreen {
         });
         this.setEventListeners();
     }
+    setEventListeners() {
+        for (const btn of this.keyboard.children) {
+            btn.classList.remove("disabled");
+            if (btn.getAttribute('data-key') === "reset") {
+                btn.classList.add("disabled");
+                continue;
+            }
+            if (btn.getAttribute('data-key') === "enter" || btn.getAttribute('data-key') === "reset" || btn.getAttribute('data-key') === "backspace")
+                continue;
+            btn.addEventListener("click", this.typeLetter.bind(this));
+        }
+        this.btnEnter.addEventListener("click", this.takeGuess.bind(this));
+        this.btnReset.addEventListener("click", this.reset.bind(this));
+        this.btnBackspace.addEventListener("click", this.backspace.bind(this));
+    }
     reset() {
         if (this.btnReset.classList.contains('disabled'))
             return;
@@ -40,12 +55,17 @@ export class TermoScreen {
                 continue;
             }
             btn.classList.remove("disabled");
+            btn.classList.remove("correct");
+            btn.classList.remove("place");
+            btn.classList.remove("btn-incorrect");
         }
         this.selectedColumnIndex = -1;
         this.attempt = 0;
         this.message.hidden = true;
     }
     backspace() {
+        if (this.btnBackspace.classList.contains('disabled'))
+            return;
         if (this.selectedColumnIndex >= 0) {
             const column = this.currentRow.children[this.selectedColumnIndex];
             if (column) {
@@ -54,22 +74,9 @@ export class TermoScreen {
             }
         }
     }
-    setEventListeners() {
-        for (const btn of this.keyboard.children) {
-            btn.classList.remove("disabled");
-            if (btn.getAttribute('data-key') === "reset") {
-                btn.classList.add("disabled");
-                continue;
-            }
-            if (btn.getAttribute('data-key') === "enter" || btn.getAttribute('data-key') === "reset" || btn.getAttribute('data-key') === "backspace")
-                continue;
-            btn.addEventListener("click", this.typeLetter.bind(this));
-        }
-        this.btnEnter.addEventListener("click", this.takeGuess.bind(this));
-        this.btnReset.addEventListener("click", this.reset.bind(this));
-        this.btnBackspace.addEventListener("click", this.backspace.bind(this));
-    }
     typeLetter(event) {
+        if (this.btnEnter.classList.contains('disabled'))
+            return;
         if (this.selectedColumnIndex > 3 || this.selectedColumnIndex < -1)
             return;
         const letter = event.target.textContent;
@@ -80,12 +87,13 @@ export class TermoScreen {
     getWord() {
         let word = '';
         for (let column = 0; column < 5; column++) {
-            word += this.currentRow.children[column].innerText;
+            word += this.currentRow.children[column].innerText.toUpperCase();
         }
         return word;
     }
-    feedbackColors(indexRow, feedback) {
+    feedbackColors(guess, indexRow, feedback) {
         for (let columnIndex = 0; columnIndex < feedback.length; columnIndex++) {
+            // rows colors
             const selectedDiv = this.rows[indexRow].children[columnIndex];
             switch (feedback[columnIndex]) {
                 case FeedbackEnum.Correct:
@@ -98,9 +106,28 @@ export class TermoScreen {
                     selectedDiv.classList.add("incorrect");
                     break;
             }
+            // btn colors
+            for (const btn of this.keyboard.children) {
+                if (btn.getAttribute('data-key') === guess[columnIndex]) {
+                    const selectedBtn = btn;
+                    switch (feedback[columnIndex]) {
+                        case FeedbackEnum.Correct:
+                            selectedBtn.classList.add("correct");
+                            break;
+                        case FeedbackEnum.Place:
+                            selectedBtn.classList.add("place");
+                            break;
+                        case FeedbackEnum.Incorrect:
+                            selectedBtn.classList.add("btn-incorrect");
+                            break;
+                    }
+                }
+            }
         }
     }
     takeGuess() {
+        if (this.btnEnter.classList.contains('disabled'))
+            return;
         const fullGuess = this.getWord();
         this.message.hidden = true;
         let returnedMessage = this.hasErrors(fullGuess);
@@ -113,7 +140,7 @@ export class TermoScreen {
         getFeedback = this.feedback.checkGuess(fullGuess, this.secretWord.secretWord);
         if (getFeedback === null)
             return;
-        this.feedbackColors(this.attempt, getFeedback);
+        this.feedbackColors(fullGuess, this.attempt, getFeedback);
         this.selectedColumnIndex = -1;
         this.attempt++;
         if (this.checkResult(fullGuess)) {
@@ -135,7 +162,7 @@ export class TermoScreen {
         }
         if (fullGuess === this.secretWord.secretWord) {
             this.message.hidden = false;
-            this.message.textContent = `fenomenal`;
+            this.message.textContent = `Fenomenal`;
             return true;
         }
         return false;

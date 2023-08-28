@@ -43,16 +43,15 @@ body {
 }
 
 .header h1{
-    font-size: 0.7rem;
-    margin-top: 30px;
+    font-size: 1rem;
 }
 
 #message{
     background-color: var(--bgMessage);
-    font-size: 0.43rem;
-    border-radius: 7px;
+    font-size: 0.6rem;
+    border-radius: 8px;
     font-weight: 200;
-    padding: 3px 30px;
+    padding: 3px 40px;
 }
 
 .game{
@@ -64,7 +63,7 @@ body {
 
 .rows{
     display: grid;
-    grid-template-rows: repeat(6, 70px);
+    grid-template-rows: repeat(6, 80px);
     gap: 7px;
     margin-bottom: 15px;
     margin-top: 15px;
@@ -72,7 +71,7 @@ body {
 
 .rows .row{
     display: grid;
-    grid-template-columns: repeat(5, 70px);
+    grid-template-columns: repeat(5, 80px);
     gap: 7px;
 }
 
@@ -85,7 +84,7 @@ body {
 
     background-color: var(--bgColorLetters);
     border-radius: 6px;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;    
 }
 
@@ -101,9 +100,15 @@ body {
     background-color: var(--colorWrong) !important;
 }
 
+.btn-incorrect{
+    background-color: #594b4f !important;
+    color: #6e5c62 !important;
+}
+
 .disabled{
     background-color: #363535 !important;
     cursor: default !important;
+    color: #fafaff !important;
 }
 
 #keyboard{
@@ -157,6 +162,15 @@ button:hover{
 
 
 @media (max-height: 760px){
+    .header h1{
+        font-size: 0.7rem;
+        margin-top: 30px;
+    }
+
+    #message{
+        font-size: 0.43rem;
+    }
+
     .rows{
         grid-template-rows: repeat(6, 65px);
     }
